@@ -1,8 +1,11 @@
 {
   "name": "telegram",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run src/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
