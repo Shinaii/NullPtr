@@ -1,15 +1,20 @@
 {
   "name": "telegram",
   "module": "src/index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "bun run src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "start": "NODE_ENV=production bun src/index.ts"
+  },
+  "dependencies": {
+    "@repo/db": "*",
+    "gramio": "^0.2.5",
+    "env-var": "^7.5.0",
+    "@verrou/core": "^0.5.1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.8.2",
+    "@types/bun": "^1.2.5"
   }
 }

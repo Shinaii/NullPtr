@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output = "../generated/client"
 }
 
 datasource db {
@@ -24,7 +25,10 @@ model file {
   category String
   name     String
   url      String
+  metaId   String
   size     Int
   type     String
+  status   Boolean
+  lastChecked DateTime
   date     DateTime
 }
