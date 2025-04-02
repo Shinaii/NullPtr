@@ -122,6 +122,8 @@ values to your liking after that you can run nullptr.
 - **🐛 [Report Issues](https://github.com/Shinaii/nullptr/issues)**: Submit bugs found or log feature requests for the `nullptr` project.
 - **💡 [Submit Pull Requests](https://github.com/Shinaii/NullPtr/pulls)**: submit your own PRs.
 
+  NOTE: If you submit a PR only do it on the dev branch!
+
 <details closed>
 <summary>Contributing Guidelines</summary>
 
