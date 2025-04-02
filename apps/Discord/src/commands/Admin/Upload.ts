@@ -56,7 +56,6 @@ export class UploadCommand extends Command {
         const writer = fs.createWriteStream(filePath);
         response.data.pipe(writer);
         writer.on('finish', async () => {
-            this.container.logger.info('File downloaded successfully');
 
             //upload the file
             this.container.logger.debug('Starting file upload:', filePath);
@@ -77,8 +76,6 @@ export class UploadCommand extends Command {
                 fs.unlink(filePath, (err) => {
                     if (err) {
                         this.container.logger.error('Error deleting file:', err);
-                    } else {
-                        this.container.logger.info('File deleted successfully');
                     }
                 });
 
