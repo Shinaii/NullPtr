@@ -1,84 +1,164 @@
-# Turborepo starter
+<div id="top">
 
-This Turborepo starter is maintained by the Turborepo core team.
+<!-- HEADER STYLE: CLASSIC -->
+<div align="center">
 
-## Using this example
+# NULLPTR
 
-Run the following command:
+Educational purpose only!
 
+
+<!-- BADGES -->
+<img src="https://img.shields.io/github/license/Shinaii/nullptr?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+<img src="https://img.shields.io/github/last-commit/Shinaii/nullptr?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+<img src="https://img.shields.io/github/languages/top/Shinaii/nullptr?style=default&color=0080ff" alt="repo-top-language">
+<img src="https://img.shields.io/github/languages/count/Shinaii/nullptr?style=default&color=0080ff" alt="repo-language-count">
+
+<!-- default option, no dependency badges. -->
+
+
+<!-- default option, no dependency badges. -->
+
+</div>
+<br>
+
+---
+
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+    - [Project Index](#project-index)
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [Testing](#testing)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+---
+
+## Overview
+
+NullPtr is a cross-platform Bot designed to Upload and Download files to a anonymous storage provider.
+
+**Why NullPtr?**
+
+This project optimizes development workflows and fosters seamless integration. The core features include:
+
+- **🚀 Task Management and Optimization:** Efficiently orchestrates tasks with `turbo`, reducing build times and resource usage.
+- **🔗 Modular Development:** Leverages workspaces for scalable and manageable project organization.
+- **🌐 Seamless Integration:** Ensures robust communication with Telegram and Discord APIs, enhancing functionality.
+- **📊 Database Management:** Utilizes Prisma for efficient schema generation and data integrity.
+- **📁 File Handling:** Provides streamlined file uploads and status checks with Axios and FormData.
+- **🌍 Open Source Collaboration:** Encourages innovation and contribution through the MIT License.
+
+---
+
+## Features
+
+|      | Component       | Details                              |
+| :--- | :-------------- | :----------------------------------- |
+| ⚙️  | **Architecture**  | <ul><li>Monorepo structure</li><li>Microservices: Telegram, Discord</li><li>TypeScript-based</li></ul> |
+| 🔌 | **Integrations**  | <ul><li>Discord.js with Sapphire.js for Discord bot</li><li>Prisma for database ORM</li><li>Axios for HTTP requests</li></ul> |
+| 🧩 | **Modularity**    | <ul><li>Packages: Upload, Database</li><li>Separation of concerns</li><li>Reusable components</li></ul> |
+| ⚡️  | **Performance**   | <ul><li>Optimized with TypeScript</li><li>Prisma for efficient DB queries</li></ul> |
+| 🛡️ | **Security**      | <ul><li>Environment variables in `.env`</li><li>No explicit security measures</li></ul> |
+| 🚀 | **Scalability**   | <ul><li>Microservices architecture</li><li>Prisma for scalable database interactions</li></ul> |
+
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+This project requires the following dependencies:
+
+- **Package Manager:** Bun
+
+### Installation
+
+Run nullptr from the source and intsall dependencies:
+
+1. **Clone the repository:**
+
+    ```sh
+    ❯ git clone https://github.com/Shinaii/nullptr
+    ```
+
+2. **Navigate to the project directory:**
+
+    ```sh
+    ❯ cd nullptr
+    ```
+
+3. **Install the dependencies:**
+
+   ```sh
+   ❯ bun install
+   ```
+
+### Usage
+
+**Editing .env files**
+
+You'll find several `.env.example` files inside the Project, rename those to `.env` and fill in The
+values to your liking after that you can run nullptr.
+
+**Using [bun](https://bun.sh/):**
 ```sh
-npx create-turbo@latest
+❯ bun turbo db:migrate
+❯ bun run dev
 ```
 
-## What's inside?
+## Contributing
 
-This Turborepo includes the following packages/apps:
+- **🐛 [Report Issues](https://github.com/Shinaii/nullptr/issues)**: Submit bugs found or log feature requests for the `nullptr` project.
+- **💡 [Submit Pull Requests](https://github.com/Shinaii/NullPtr/pulls)**: submit your own PRs.
 
-### Apps and Packages
+<details closed>
+<summary>Contributing Guidelines</summary>
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+1. **Fork the Repository**: Start by forking the project repository to your github account.
+2. **Clone Locally**: Clone the forked repository to your local machine using a git client.
+   ```sh
+   git clone https://github.com/Shinaii/nullptr
+   ```
+3. **Create a New Branch**: Always work on a new branch, giving it a descriptive name.
+   ```sh
+   git checkout -b new-feature-x
+   ```
+4. **Make Your Changes**: Develop and test your changes locally.
+5. **Commit Your Changes**: Commit with a clear message describing your updates.
+   ```sh
+   git commit -m 'Implemented new feature x.'
+   ```
+6. **Push to github**: Push the changes to your forked repository.
+   ```sh
+   git push origin new-feature-x
+   ```
+7. **Submit a Pull Request**: Create a PR against the original project repository. Clearly describe the changes and their motivations.
+8. **Review**: Once your PR is reviewed and approved, it will be merged into the main branch. Congratulations on your contribution!
+</details>
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+<details closed>
+<summary>Contributor Graph</summary>
+<br>
+<p align="left">
+   <a href="https://github.com{/Shinaii/nullptr/}graphs/contributors">
+      <img src="https://contrib.rocks/image?repo=Shinaii/nullptr">
+   </a>
+</p>
+</details>
 
-### Utilities
+---
 
-This Turborepo has some additional tools already setup for you:
+## License
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+Nullptr is protected under the MIT License.
