@@ -21,7 +21,7 @@ client.once('ready', async () => {
       const filesCount = await prisma.file.count();
 
       client.user?.setActivity({
-        name: `over ${filesCount} files and ${memberCount} members`,
+        name: ` ${filesCount} files and ${memberCount} members`,
         type: ActivityType.Watching,
       });
 
