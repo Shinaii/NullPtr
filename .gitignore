@@ -40,3 +40,11 @@ yarn-error.log*
 # jetbrains
 .idea/
 /.idea/
+
+generated/
+/generated/
+
+dev.db
+dev.db-journal
+
+bun.lockb
