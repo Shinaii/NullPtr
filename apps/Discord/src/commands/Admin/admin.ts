@@ -2,7 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { Command } from '@sapphire/framework';
 import { prisma } from '@repo/db';
-import { OWNER_IDS } from '../../preconditions/OwnerOnly.ts';
+import { OWNER_IDS } from '../../preconditions/ownerOnly.ts';
 import { EmbedBuilder } from 'discord.js';
 import { EmbedUtils } from '../../utils/embedUtils.ts';
 

@@ -1,7 +1,7 @@
 import { Precondition } from '@sapphire/framework';
 import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, Message } from 'discord.js';
 import { prisma } from '@repo/db';
-import { OWNER_IDS } from './OwnerOnly.ts';
+import { OWNER_IDS } from './ownerOnly.ts';
 
 export class AdminOnlyPrecondition extends Precondition {
     public override messageRun(message: Message) {
