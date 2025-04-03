@@ -1,35 +1,38 @@
-import { Subcommand } from "@sapphire/plugin-subcommands";
+import { ApplyOptions } from '@sapphire/decorators';
+import { Subcommand } from '@sapphire/plugin-subcommands';
 import { Command } from '@sapphire/framework';
-import { EmbedBuilder } from "discord.js";
-import { prisma } from "@repo/db";
-import {checkFileStatus} from "@repo/uploader";
+import { EmbedBuilder } from 'discord.js';
+import { prisma } from '@repo/db';
+import { checkFileStatus } from '@repo/uploader';
+import {EmbedUtils} from "../../utils/embedUtils.ts";
 
+@ApplyOptions<Subcommand.Options>({
+    name: 'download',
+    subcommands: [
+        { name: 'list', chatInputRun: 'DLList' },
+        { name: 'get', chatInputRun: 'DLGet' },
+    ],
+    description: 'Download command'
+})
 export class DownloadCommand extends Subcommand {
-    constructor(context: Command.LoaderContext , options: Subcommand.Options) {
-        super(context, {
-            ...options,
-            name: 'download',
-            subcommands: [
-                { name: 'list',  chatInputRun: 'DLList' },
-                { name: 'get', chatInputRun: 'DLGet' },
-            ]
-        });
+    public constructor(context: Command.LoaderContext, options: Subcommand.Options) {
+        super(context, options);
     }
 
-    registerApplicationCommands(registry: Subcommand.Registry) {
+    public override registerApplicationCommands(registry: Subcommand.Registry) {
         registry.registerChatInputCommand((builder) =>
             builder
                 .setName('download')
-                .setDescription('download command')
+                .setDescription('Download command')
                 .addSubcommand((command) =>
                     command
                         .setName('list')
-                        .setDescription('List Admins')
+                        .setDescription('List files')
                         .addStringOption((option) =>
-                        option
-                            .setName('category')
-                            .setDescription('Category of the file e.g. [AP1]')
-                            .setRequired(true)
+                            option
+                                .setName('category')
+                                .setDescription('Category of the file e.g. [AP1]')
+                                .setRequired(true)
                         )
                         .addStringOption((option) =>
                             option
@@ -43,10 +46,10 @@ export class DownloadCommand extends Subcommand {
                         .setName('get')
                         .setDescription('Get a download link for a file')
                         .addStringOption((option) =>
-                        option
-                            .setName('category')
-                            .setDescription('Category of the file e.g. [AP1]')
-                            .setRequired(true)
+                            option
+                                .setName('category')
+                                .setDescription('Category of the file e.g. [AP1]')
+                                .setRequired(true)
                         )
                         .addStringOption((option) =>
                             option
@@ -59,6 +62,8 @@ export class DownloadCommand extends Subcommand {
     }
 
     public async DLList(interaction: Command.ChatInputCommandInteraction) {
+        await interaction.deferReply({ flags: 'Ephemeral' });
+
         const category = interaction.options.getString('category') as string;
         const name = interaction.options.getString('name') as string | null;
 
@@ -70,78 +75,110 @@ export class DownloadCommand extends Subcommand {
             });
 
             if (files.length === 0) {
-                return interaction.reply({ content: 'No files found.', flags: "Ephemeral" });
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('No Files Found')
+                    .setDescription('No files found.');
+                EmbedUtils.setFooter(embed, interaction);
+                return interaction.editReply({ embeds: [embed] });
             }
 
             const fileNames = files.map((file: { name: any; }) => file.name).join(', ');
-            return interaction.reply({ content: `Files in category ${category}: ${fileNames}` , flags: "Ephemeral"});
+            const embed = new EmbedBuilder()
+                .setColor(0x00FF00)
+                .setTitle(`Files in category ${category}`)
+                .setDescription(fileNames);
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
         }
 
         const files = await prisma.file.findMany({
             where: {
-                category: category,
-                name: name
+                category: { contains: category},
+                name: { contains: name}
             }
         });
 
         if (files.length === 0) {
-            return interaction.reply({ content: 'File not found.' , flags: "Ephemeral"});
+            const embed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('File Not Found')
+                .setDescription('File not found.');
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
         }
 
         const fileNames = files.map((file: { name: any; }) => file.name).join(', ');
-        return interaction.reply({ content: `File found: ${fileNames}`, flags: "Ephemeral"});
+        const embed = new EmbedBuilder()
+            .setColor(0x00FF00)
+            .setTitle('File Found')
+            .setDescription(fileNames);
+        EmbedUtils.setFooter(embed, interaction);
+        return interaction.editReply({ embeds: [embed] });
     }
 
     public async DLGet(interaction: Command.ChatInputCommandInteraction) {
-        const category = interaction.options.getString('category') as string;
-        const name = interaction.options.getString('name') as string;
+        await interaction.deferReply({ flags: 'Ephemeral' });
+
+        const category = interaction.options.getString('category')?.toLowerCase() as string;
+        const name = interaction.options.getString('name')?.toLowerCase() as string;
 
         const file = await prisma.file.findFirst({
             where: {
-                category: category,
-                name: name
+                category: { contains: category},
+                name: { contains: name }
             }
         });
 
         if (!file) {
-            return interaction.reply({ content: 'File not found.', flags: "Ephemeral"});
+            const embed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('File Not Found')
+                .setDescription('File not found.');
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
         }
 
-        //Check if link is still up or down
+        // Check if link is still up or down
         await checkFileStatus(file.metaId)
             .then((status) => {
                 if (!status) {
-                    interaction.reply({ content: 'Looks like the file you are looking for is down...', flags: "Ephemeral"});
-                    return interaction.reply({ content: 'Please notify an Admin.', flags: "Ephemeral"})
-                    //TODO Automatically notify admins
+                    const embed = new EmbedBuilder()
+                        .setColor(0xFF0000)
+                        .setTitle('File Down')
+                        .setDescription('Looks like the file you are looking for is down. Please notify an Admin.');
+                    EmbedUtils.setFooter(embed, interaction);
+                    return interaction.editReply({ embeds: [embed] });
+                    // TODO Automatically notify admins
                 }
             })
             .catch((error) => {
                 this.container.logger.error('Error checking file status:', error);
-                return interaction.reply({ content: 'Error checking file status.', flags: "Ephemeral"});
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('Error')
+                    .setDescription('Error checking file status.');
+                EmbedUtils.setFooter(embed, interaction);
+                return interaction.editReply({ embeds: [embed] });
             });
 
-        const interactiontitle = category + ' - ' + name;
+        const interactiontitle = file.category + ' - ' + file.name;
 
-        // @ts-ignore
         const embed = new EmbedBuilder()
             .setColor(0x0099FF)
             .setTitle(interactiontitle)
             .setURL(file.url)
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
             .addFields(
-                { name: 'Download Link', value: file.url},
+                { name: 'File Status', value: file.status ? '✅ **Online**' : '⛔ **Offline**' , inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Size', value: file.size.toString(), inline: true },
                 { name: 'Filetype', value: file.type.toString(), inline: true },
+                { name: 'Download Link', value: `[Click Here](${file.url})`, inline: true },
             )
             .setTimestamp()
-            .setFooter({ text: 'NullPtr by Shinaii', iconURL: interaction.client.user.avatarURL() ?? '' , });
+        EmbedUtils.setFooter(embed, interaction);
 
-
-        return interaction.reply({ embeds: [embed], flags: "Ephemeral" });
-
-        //return interaction.reply({ content: `Download link: ${file.url}`, flags: "Ephemeral"});
+        return interaction.editReply({ embeds: [embed] });
     }
-
 }

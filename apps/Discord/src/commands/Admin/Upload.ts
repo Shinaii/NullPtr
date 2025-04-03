@@ -1,9 +1,17 @@
+import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { axiosClient } from "@repo/uploader";
 import { upload } from "@repo/uploader";
 import * as fs from "node:fs";
 import { prisma } from "@repo/db";
+import { EmbedBuilder } from 'discord.js';
+import { EmbedUtils } from '../../utils/embedUtils';
 
+@ApplyOptions<Command.Options>({
+    name: 'upload',
+    description: 'Upload a file',
+    preconditions: ['AdminOnly']
+})
 export class UploadCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {
         super(context, { ...options });
@@ -12,13 +20,13 @@ export class UploadCommand extends Command {
     public override registerApplicationCommands(registry: Command.Registry) {
         registry.registerChatInputCommand((builder) =>
             builder
-                .setName('upload')
-                .setDescription('Upload a file')
+                .setName(this.name)
+                .setDescription(this.description)
                 .addAttachmentOption((option) =>
                     option.setName('file').setDescription('File to upload').setRequired(true)
                 )
                 .addStringOption((option) =>
-                option.setName('category').setDescription('Category of the file e.g. [AP1]').setRequired(true)
+                    option.setName('category').setDescription('Category of the file e.g. [AP1]').setRequired(true)
                 )
                 .addStringOption((option) =>
                     option.setName('name').setDescription('Name of the file e.g. [FJ 2025]').setRequired(true)
@@ -27,26 +35,19 @@ export class UploadCommand extends Command {
     }
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-
-        const user = await prisma.admin.findFirst({
-            where: {
-                discordId: interaction.user.id,
-            }
-        });
-
-        if (!user) {
-            return interaction.reply({ content: 'You are not an admin.', flags: "Ephemeral" });
-        }
-
-        await interaction.reply({content: `Uploading...`, flags: "Ephemeral"});
+        await interaction.deferReply({ flags: 'Ephemeral' });
 
         const file = interaction.options.getAttachment('file');
         if (!file) {
-            return interaction.editReply({ content: 'No file provided.'});
+            const embed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('Error')
+                .setDescription('No file provided.');
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
         }
 
         const filePath = `./temp/${file.name}`;
-
         const fileType = file.contentType || 'application/octet-stream';
 
         if (!fs.existsSync('./temp')) {
@@ -56,30 +57,19 @@ export class UploadCommand extends Command {
         const writer = fs.createWriteStream(filePath);
         response.data.pipe(writer);
         writer.on('finish', async () => {
-
-            //upload the file
             this.container.logger.debug('Starting file upload:', filePath);
             const uploadResponse = await upload(filePath);
             this.container.logger.debug('Upload response:', uploadResponse);
 
-
-            /*
-            const responseFilePath = `./temp/${file.name}.json`;
-            fs.writeFileSync(responseFilePath, JSON.stringify(uploadResponse));
-            this.container.logger.debug('Response saved to:', responseFilePath);
-            */
-
             if (uploadResponse.status) {
                 const fileUrl = uploadResponse.data.file.url.short;
                 this.container.logger.debug('File uploaded successfully:', fileUrl);
-                //delete the file
                 fs.unlink(filePath, (err) => {
                     if (err) {
                         this.container.logger.error('Error deleting file:', err);
                     }
                 });
 
-                //save to db
                 await prisma.file.create({
                     data: {
                         category: interaction.options.getString('category') || '',
@@ -94,23 +84,30 @@ export class UploadCommand extends Command {
                     }
                 });
 
-
-                await interaction.editReply({ content: `File uploaded successfully: ${fileUrl}`});
+                const embed = new EmbedBuilder()
+                    .setColor(0x00FF00)
+                    .setTitle('Success')
+                    .setDescription(`File uploaded successfully: [${fileUrl}](${fileUrl})`);
+                EmbedUtils.setFooter(embed, interaction);
+                await interaction.editReply({ embeds: [embed] });
             } else {
                 this.container.logger.error('Error uploading file:', uploadResponse);
-                await interaction.editReply({ content: 'Error uploading file.'});
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('Error')
+                    .setDescription('Error uploading file.');
+                EmbedUtils.setFooter(embed, interaction);
+                await interaction.editReply({ embeds: [embed] });
             }
         });
         writer.on('error', (error) => {
             this.container.logger.error('Error downloading file:', error);
-            return interaction.editReply({ content: 'Error downloading file.'});
+            const embed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('Error')
+                .setDescription('Error downloading file.');
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
         });
-        writer.on('error', (error) => {
-            this.container.logger.error('Error downloading file:', error);
-            return interaction.editReply({ content: 'Error downloading file.'});
-        });
-        // @ts-ignore
-        await new Promise((resolve) => writer.on('finish', resolve));
-
     }
 }

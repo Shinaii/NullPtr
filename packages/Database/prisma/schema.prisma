@@ -20,7 +20,7 @@ model Admin {
   telegramId String @unique
 }
 
-model file {
+model File {
   id          Int      @id @default(autoincrement())
   category    String
   name        String
