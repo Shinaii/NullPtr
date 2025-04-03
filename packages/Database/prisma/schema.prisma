@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/client"
+  output   = "../generated/client"
 }
 
 datasource db {
@@ -15,20 +15,28 @@ datasource db {
 }
 
 model Admin {
-  id       Int      @id @default(autoincrement())
-  discordId String   @unique
-  telegramId String  @unique
+  id         Int    @id @default(autoincrement())
+  discordId  String @unique
+  telegramId String @unique
 }
 
 model file {
-  id       Int      @id @default(autoincrement())
-  category String
-  name     String
-  url      String
-  metaId   String
-  size     Int
-  type     String
-  status   Boolean
+  id          Int      @id @default(autoincrement())
+  category    String
+  name        String
+  url         String
+  metaId      String
+  size        Int
+  type        String
+  status      Boolean
   lastChecked DateTime
-  date     DateTime
+  date        DateTime
+}
+
+model DiscordGuild {
+  id        Int      @id @default(autoincrement())
+  GuildId   String   @unique
+  name      String
+  members   Int
+  createdAt DateTime @default(now())
 }

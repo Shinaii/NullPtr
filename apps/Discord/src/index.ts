@@ -12,10 +12,6 @@ const client = new SapphireClient({
 });
 
 client.once('ready', async () => {
-    client.user?.setActivity('files', {
-        type: ActivityType.Streaming
-    });
-
     client.user?.setStatus('online');
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
     await prisma.$connect();

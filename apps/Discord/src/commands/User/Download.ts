@@ -1,5 +1,6 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
 import { Command } from '@sapphire/framework';
+import { EmbedBuilder } from "discord.js";
 import { prisma } from "@repo/db";
 import {checkFileStatus} from "@repo/uploader";
 
@@ -120,7 +121,27 @@ export class DownloadCommand extends Subcommand {
                 return interaction.reply({ content: 'Error checking file status.', flags: "Ephemeral"});
             });
 
-        return interaction.reply({ content: `Download link: ${file.url}`, flags: "Ephemeral"});
+        const interactiontitle = category + ' - ' + name;
+
+        // @ts-ignore
+        const embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(interactiontitle)
+            .setURL(file.url)
+            .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
+            .addFields(
+                { name: 'Download Link', value: file.url},
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Size', value: file.size.toString(), inline: true },
+                { name: 'Filetype', value: file.type.toString(), inline: true },
+            )
+            .setTimestamp()
+            .setFooter({ text: 'NullPtr by Shinaii', iconURL: interaction.client.user.avatarURL() ?? '' , });
+
+
+        return interaction.reply({ embeds: [embed], flags: "Ephemeral" });
+
+        //return interaction.reply({ content: `Download link: ${file.url}`, flags: "Ephemeral"});
     }
 
 }
