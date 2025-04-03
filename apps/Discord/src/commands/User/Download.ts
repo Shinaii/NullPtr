@@ -5,6 +5,7 @@ import { EmbedBuilder } from 'discord.js';
 import { prisma } from '@repo/db';
 import { checkFileStatus } from '@repo/uploader';
 import {EmbedUtils} from "../../utils/embedUtils.ts";
+import {dataUtils} from "../../utils/dataUtils.ts";
 
 @ApplyOptions<Subcommand.Options>({
     name: 'download',
@@ -139,9 +140,22 @@ export class DownloadCommand extends Subcommand {
             return interaction.editReply({ embeds: [embed] });
         }
 
-        // Check if link is still up or down
-        await checkFileStatus(file.metaId)
+        await checkFileStatus(file)
             .then((status) => {
+
+                this.container.logger.debug(`Checking status of file: ${file.metaId}`, status);
+
+                file.lastChecked = new Date();
+                prisma.file.update({
+                    where: {
+                        id: file.id
+                    },
+                    data: {
+                        status: status,
+                        lastChecked: file.lastChecked.toISOString()
+                    }
+                });
+
                 if (!status) {
                     const embed = new EmbedBuilder()
                         .setColor(0xFF0000)
@@ -162,19 +176,22 @@ export class DownloadCommand extends Subcommand {
                 return interaction.editReply({ embeds: [embed] });
             });
 
-        const interactiontitle = file.category + ' - ' + file.name;
+        const interactionTitle = file.category + ' - ' + file.name;
 
         const embed = new EmbedBuilder()
             .setColor(0x0099FF)
-            .setTitle(interactiontitle)
+            .setTitle(interactionTitle)
+            .setThumbnail(interaction.client.user.avatarURL())
             .setURL(file.url)
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
             .addFields(
                 { name: 'File Status', value: file.status ? '✅ **Online**' : '⛔ **Offline**' , inline: true },
                 { name: '\u200B', value: '\u200B' },
-                { name: 'Size', value: file.size.toString(), inline: true },
-                { name: 'Filetype', value: file.type.toString(), inline: true },
-                { name: 'Download Link', value: `[Click Here](${file.url})`, inline: true },
+                { name: '**Size**', value: dataUtils.convertSizeToHumanReadable(file.size), inline: true },
+                { name: '**Filetype**', value: file.type.toString(), inline: true },
+                { name: '**Last Checked**', value: dataUtils.convertISOToDate(file.lastChecked.toString()), inline: true },
+                { name: '\u200B', value: '\u200B' },
+                { name: '**Download Link**', value: `[Click Here](${file.url})`, inline: true },
             )
             .setTimestamp()
         EmbedUtils.setFooter(embed, interaction);

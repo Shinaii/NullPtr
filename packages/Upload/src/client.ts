@@ -26,10 +26,10 @@ export const upload = async (filePath: string) => {
     return response.data;
 };
 
-export const checkFileStatus = async (fileId: string) => {
+export const checkFileStatus = async (file: any) => {
     try {
-        const response = await axiosClient.get(`https://anonymfile.com/api/v1/file/${fileId}/info`);
-        return response.status;
+        const response = await axiosClient.get(`https://anonymfile.com/api/v1/file/${file.metaId}/info`);
+        return response.data.status;
     } catch (error) {
         console.error('Error checking file status:', error);
         return false;

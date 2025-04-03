@@ -17,6 +17,7 @@ export class InviteCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+		//im lazy to add a check for the permissions so feel free to adjust this
 		const inviteLink = `https://discord.com/oauth2/authorize?client_id=${interaction.client.user?.id}&permissions=${PermissionsBitField.Flags.Administrator}&scope=bot%20applications.commands`;
 
 		const embed = new EmbedBuilder()
