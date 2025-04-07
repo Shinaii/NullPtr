@@ -5,12 +5,12 @@ import { upload } from "@repo/uploader";
 import * as fs from "node:fs";
 import { prisma } from "@repo/db";
 import { EmbedBuilder } from 'discord.js';
-import { EmbedUtils } from '../../utils/embedUtils';
+import { EmbedUtils } from '../../lib/utils/embedUtils';
 
 @ApplyOptions<Command.Options>({
     name: 'upload',
     description: 'Upload a file',
-    preconditions: ['AdminOnly']
+    preconditions: [['AdminOnly', "OwnerOnly"]]
 })
 export class UploadCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {

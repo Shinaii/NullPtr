@@ -4,8 +4,8 @@ import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { prisma } from '@repo/db';
 import { checkFileStatus } from '@repo/uploader';
-import {EmbedUtils} from "../../utils/embedUtils.ts";
-import {dataUtils} from "../../utils/dataUtils.ts";
+import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
+import {dataUtils} from "../../lib/utils/dataUtils.ts";
 
 @ApplyOptions<Subcommand.Options>({
     name: 'download',

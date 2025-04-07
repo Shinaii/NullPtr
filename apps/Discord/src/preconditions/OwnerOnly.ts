@@ -1,9 +1,14 @@
 import { Precondition } from '@sapphire/framework';
-import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, Message } from 'discord.js';
+import type{
+	ChatInputCommandInteraction,
+	ContextMenuCommandInteraction,
+	Message,
+	Snowflake
+} from 'discord.js';
 
-export const OWNER_IDS = (process.env.OWNER_IDS ? process.env.OWNER_IDS.split(',') : []).concat('1354797488359477390');
+export const OWNER_IDS = (process.env.OWNER_IDS ? process.env.OWNER_IDS.split(',') : []).concat('161504025722880000');
 
-export class OwnerOnlyPrecondition extends Precondition {
+export class UserPrecondition extends Precondition {
 	public override messageRun(message: Message) {
 		return this.checkOwner(message.author.id);
 	}
@@ -16,10 +21,10 @@ export class OwnerOnlyPrecondition extends Precondition {
 		return this.checkOwner(interaction.user.id);
 	}
 
-	private checkOwner(userId: string) {
+	private checkOwner(userId: Snowflake) {
 		return OWNER_IDS.includes(userId)
 			? this.ok()
-			: this.error({ message: 'You are not authorized to use this command.' });
+			: this.error({ message: 'Only the Owner of this Bot can execute this command.' });
 	}
 }
 

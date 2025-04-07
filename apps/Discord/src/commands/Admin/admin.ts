@@ -2,9 +2,9 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { Command } from '@sapphire/framework';
 import { prisma } from '@repo/db';
-import { OWNER_IDS } from '../../preconditions/ownerOnly.ts';
+import { OWNER_IDS } from '../../preconditions/OwnerOnly.ts';
 import { EmbedBuilder } from 'discord.js';
-import { EmbedUtils } from '../../utils/embedUtils.ts';
+import { EmbedUtils } from '../../lib/utils/embedUtils.ts';
 
 @ApplyOptions<Subcommand.Options>({
     name: 'admin',
@@ -15,7 +15,7 @@ import { EmbedUtils } from '../../utils/embedUtils.ts';
         { name: 'update', chatInputRun: 'AdminUpdate' }
     ],
     description: 'Admin command',
-    preconditions: ['AdminOnly']
+    preconditions: [['AdminOnly', "OwnerOnly"]]
 })
 export class AdminCommand extends Subcommand {
     public constructor(context: Command.LoaderContext, options: Subcommand.Options) {

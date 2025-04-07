@@ -2,7 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import {EmbedUtils} from "../../utils/embedUtils.ts";
+import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
 
 @ApplyOptions<Command.Options>({
     name: 'ping',

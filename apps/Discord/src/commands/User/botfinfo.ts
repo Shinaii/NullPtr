@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { PermissionsBitField, EmbedBuilder } from 'discord.js';
-import {EmbedUtils} from "../../utils/embedUtils.ts";
+import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
 
 @ApplyOptions<Command.Options>({
 	name: 'botinfo',
