@@ -1,0 +1,25 @@
+services:
+     turbo:
+       image: oven/bun:latest
+       working_dir: /app
+       volumes:
+         - ./:/app
+       command: sh -c "bun install && bun turbo run db:migrate db:generate"
+
+     Discord:
+       image: oven/bun:latest
+       working_dir: /app/apps/Discord
+       volumes:
+         - ./:/app
+       command: sh -c "bun install && bun run dev"
+       depends_on:
+         - turbo
+
+     Telegram:
+       image: oven/bun:latest
+       working_dir: /app/apps/Telegram
+       volumes:
+         - ./:/app
+       command: sh -c "bun install && bun run dev"
+       depends_on:
+         - turbo

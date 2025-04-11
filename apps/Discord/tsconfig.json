@@ -7,9 +7,6 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    "paths": {
-      "*": ["../../node_modules/*"]
-    },
 
     // Bundler mode
     "moduleResolution": "bundler",
