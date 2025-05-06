@@ -12,6 +12,8 @@ import { VM } from 'vm2';
     requiredClientPermissions: ['EmbedLinks'],
     flags: ['ephemeral']
 })
+
+//TODO : Fix this since its broken like hell
 export class EvalCommand extends Command {
     public override registerApplicationCommands(registry: Command.Registry) {
         registry.registerChatInputCommand((builder) =>

@@ -1,25 +1,34 @@
+# Please remember to generate the .env files from the .env.example files inside of every service!
+# We are not using the build in Environment Variables feature of docker
 services:
-     turbo:
-       image: oven/bun:latest
-       working_dir: /app
-       volumes:
-         - ./:/app
-       command: sh -c "bun install && bun turbo run db:migrate db:generate"
+  # turbo service is used to run database migrations and generate files
+  # the service will stop after its done don't worry
+  turbo:
+    image: oven/bun:latest
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "bun install && bun turbo run db:migrate db:generate && exit 0"
+    deploy:
+      restart_policy:
+        condition: none
 
-     Discord:
-       image: oven/bun:latest
-       working_dir: /app/apps/Discord
-       volumes:
-         - ./:/app
-       command: sh -c "bun install && bun run dev"
-       depends_on:
-         - turbo
+  Discord:
+    image: oven/bun:latest
+    working_dir: /app/apps/Discord
+    volumes:
+      - ./:/app
+    command: sh -c "bun install && bun run dev"
+    restart: always
+    depends_on:
+      - turbo
 
-     Telegram:
-       image: oven/bun:latest
-       working_dir: /app/apps/Telegram
-       volumes:
-         - ./:/app
-       command: sh -c "bun install && bun run dev"
-       depends_on:
-         - turbo
+  Telegram:
+    image: oven/bun:latest
+    working_dir: /app/apps/Telegram
+    volumes:
+      - ./:/app
+    command: sh -c "bun install && bun run dev"
+    restart: always
+    depends_on:
+      - turbo
