@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@repo/db": "*",
-    "gramio": "^0.2.5",
+    "@verrou/core": "^0.5.1",
     "env-var": "^7.5.0",
-    "@verrou/core": "^0.5.1"
+    "grammy": "^1.35.1"
   },
   "devDependencies": {
     "typescript": "^5.8.2",

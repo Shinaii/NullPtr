@@ -1,22 +1,11 @@
-import { bot } from "./bot.ts"
-import { server } from "./webhook.ts"
-const signals = ["SIGINT", "SIGTERM"];
+import { Bot } from "grammy";
 
-for (const signal of signals) {
-    process.on(signal, async () => {
-        console.log(`Received ${signal}. Initiating graceful shutdown...`);
-        server.stop()
-        await bot.stop()
-        process.exit(0);
-    })
-}
-    
-process.on("uncaughtException", (error) => {
-    console.error(error);
-})
 
-process.on("unhandledRejection", (error) => {
-    console.error(error);
-})
-    
-await bot.start();
+//First time using GrammY so i gonna comment everything since i don't know shit about it
+const bot = new Bot(<string>process.env.BOT_TOKEN);
+
+bot.command("start", (ctx) => ctx.reply("Welcome! Up and running."));
+
+bot.on("message", (ctx) => ctx.reply("Got another message!"));
+
+bot.start();

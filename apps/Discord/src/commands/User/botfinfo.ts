@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { PermissionsBitField, EmbedBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
 
 @ApplyOptions<Command.Options>({
@@ -28,8 +28,16 @@ export class BotinfoCommand extends Command {
 			.setURL('https://github.com/Shinaii/NullPtr')
 			.setFields(
 				{ name: 'RAM Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`, inline: true },
+				//Im lost didn't noticed i was collecting the CPU Usage of the whole User... TODO (If run in Docker it works kind of obviously)
 				{ name: 'CPU Usage', value: `${(process.cpuUsage().user / 1024 / 1024).toFixed(2)}%`, inline: true },
-				{ name: 'Uptime', value: `${Math.floor(process.uptime() / 60)} minutes`, inline: true },
+				{
+					name: 'Uptime',
+					value: `${Math.floor(process.uptime() / 86400)}d 
+							${Math.floor((process.uptime() % 86400) / 3600)}h 
+							${Math.floor((process.uptime() % 3600) / 60)}m 
+							${Math.floor(process.uptime() % 60)}s`,
+					inline: true
+				},
 				{ name: 'Users', value: `${membercount}`, inline: true },
 				{ name: 'Servers', value: `${interaction.client.guilds.cache.size}`, inline: true },
 				{ name: 'Contributing', value: '[GitHub](https://github.com/Shinaii/NullPtr)', inline: true },

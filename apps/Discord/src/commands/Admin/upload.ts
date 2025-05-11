@@ -87,7 +87,7 @@ export class UploadCommand extends Command {
                 const embed = new EmbedBuilder()
                     .setColor(0x00FF00)
                     .setTitle('Success')
-                    .setDescription(`File uploaded successfully: [${fileUrl}](${fileUrl})`);
+                    .setDescription(`File uploaded successfully: [${file.name}](${fileUrl})`);
                 EmbedUtils.setFooter(embed, interaction);
                 await interaction.editReply({ embeds: [embed] });
             } else {
