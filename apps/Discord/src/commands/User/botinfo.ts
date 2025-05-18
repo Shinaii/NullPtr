@@ -19,6 +19,21 @@ export class BotinfoCommand extends Command {
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		const membercount = interaction.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
 
+		// Uptime calculation
+		const uptime = process.uptime();
+		const timeUnits = [
+			{ label: 'd', value: Math.floor(uptime / 86400) },
+			{ label: 'h', value: Math.floor((uptime % 86400) / 3600) },
+			{ label: 'm', value: Math.floor((uptime % 3600) / 60) },
+			{ label: 's', value: Math.floor(uptime % 60) }
+		];
+
+		// Filter out zero values and format the string
+		const uptimeString = timeUnits
+			.filter(unit => unit.value > 0)
+			.map(unit => `${unit.value}${unit.label}`)
+			.join(' ');
+
 		const embed = new EmbedBuilder()
 			.setColor(0xA020F0)
 			.setTitle('Botinfo')
@@ -28,14 +43,11 @@ export class BotinfoCommand extends Command {
 			.setURL('https://github.com/Shinaii/NullPtr')
 			.setFields(
 				{ name: 'RAM Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`, inline: true },
-				//Im lost didn't noticed i was collecting the CPU Usage of the whole User... TODO (If run in Docker it works kind of obviously)
+				 // TODO: Fix CPU Usage calculation
 				{ name: 'CPU Usage', value: `${(process.cpuUsage().user / 1024 / 1024).toFixed(2)}%`, inline: true },
 				{
 					name: 'Uptime',
-					value: `${Math.floor(process.uptime() / 86400)}d 
-							${Math.floor((process.uptime() % 86400) / 3600)}h 
-							${Math.floor((process.uptime() % 3600) / 60)}m 
-							${Math.floor(process.uptime() % 60)}s`,
+					value: uptimeString || 'N/A', // Display 'N/A' if uptime is 0
 					inline: true
 				},
 				{ name: 'Users', value: `${membercount}`, inline: true },
@@ -45,7 +57,7 @@ export class BotinfoCommand extends Command {
 				{ name: 'Special Thanks', value: 'None', inline: true }
 			)
 
-			.setTimestamp()
+			.setTimestamp();
 		EmbedUtils.setFooter(embed, interaction);
 
 		return interaction.reply({ embeds: [embed], flags: 'Ephemeral' });
