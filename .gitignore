@@ -47,4 +47,5 @@ generated/
 dev.db
 dev.db-journal
 
+bun.lock
 bun.lockb
