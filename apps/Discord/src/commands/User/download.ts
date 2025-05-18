@@ -146,7 +146,7 @@ export class DownloadCommand extends Subcommand {
                 this.container.logger.debug(`Checking status of file: ${file.metaId}`, status);
 
                 file.lastChecked = new Date();
-                prisma.file.update({
+                await prisma.file.update({
                     where: {
                         id: file.id
                     },
