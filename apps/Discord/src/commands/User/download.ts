@@ -140,41 +140,40 @@ export class DownloadCommand extends Subcommand {
             return interaction.editReply({ embeds: [embed] });
         }
 
-        await checkFileStatus(file)
-            .then((status) => {
+        try {
+            const status = await checkFileStatus(file);
 
-                this.container.logger.debug(`Checking status of file: ${file.metaId}`, status);
+            this.container.logger.debug(`Checking status of file: ${file.metaId}`, status);
 
-                file.lastChecked = new Date();
-                await prisma.file.update({
-                    where: {
-                        id: file.id
-                    },
-                    data: {
-                        status: status,
-                        lastChecked: file.lastChecked.toISOString()
-                    }
-                });
-
-                if (!status) {
-                    const embed = new EmbedBuilder()
-                        .setColor(0xFF0000)
-                        .setTitle('File Down')
-                        .setDescription('Looks like the file you are looking for is down. Please notify an Admin.');
-                    EmbedUtils.setFooter(embed, interaction);
-                    return interaction.editReply({ embeds: [embed] });
-                    // TODO Automatically notify admins
+            file.lastChecked = new Date();
+            await prisma.file.update({
+                where: {
+                    id: file.id
+                },
+                data: {
+                    status: status,
+                    lastChecked: file.lastChecked.toISOString()
                 }
-            })
-            .catch((error) => {
-                this.container.logger.error('Error checking file status:', error);
+            });
+
+            if (!status) {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
-                    .setTitle('Error')
-                    .setDescription('Error checking file status.');
+                    .setTitle('File Down')
+                    .setDescription('Looks like the file you are looking for is down. Please notify an Admin.');
                 EmbedUtils.setFooter(embed, interaction);
                 return interaction.editReply({ embeds: [embed] });
-            });
+                // TODO Automatically notify admins
+            }
+        } catch (error) {
+            this.container.logger.error('Error checking file status:', error);
+            const embed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('Error')
+                .setDescription('Error checking file status.');
+            EmbedUtils.setFooter(embed, interaction);
+            return interaction.editReply({ embeds: [embed] });
+        }
 
         const interactionTitle = file.category + ' - ' + file.name;
 
