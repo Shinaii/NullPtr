@@ -7,9 +7,6 @@ import { prisma } from "@repo/db";
 import { EmbedBuilder } from 'discord.js';
 import { EmbedUtils } from '../../lib/utils/embedUtils';
 
-// Extend axiosClient timeout to 30 seconds
-axiosClient.defaults.timeout = 30000; 
-
 @ApplyOptions<Command.Options>({
     name: 'upload',
     description: 'Upload a file',

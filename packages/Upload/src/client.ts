@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 const globalForAxios = global as unknown as { axiosClient: ReturnType<typeof axios.create> };
 
 const axiosClient = globalForAxios.axiosClient || axios.create({
-    timeout: 10000,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
