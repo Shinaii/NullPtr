@@ -60,7 +60,6 @@ export class UploadCommand extends Command {
             this.container.logger.debug('Starting file upload:', filePath);
             const uploadResponse = await upload(filePath);
             this.container.logger.debug('Upload response:', uploadResponse);
-
             if (uploadResponse.status) {
                 const fileUrl = uploadResponse.data.file.url.short;
                 this.container.logger.debug('File uploaded successfully:', fileUrl);
@@ -98,6 +97,11 @@ export class UploadCommand extends Command {
                     .setDescription('Error uploading file.');
                 EmbedUtils.setFooter(embed, interaction);
                 await interaction.editReply({ embeds: [embed] });
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        this.container.logger.error('Error deleting file:', err);
+                    }
+                });
             }
         });
         writer.on('error', (error) => {

@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 const globalForAxios = global as unknown as { axiosClient: ReturnType<typeof axios.create> };
 
 const axiosClient = globalForAxios.axiosClient || axios.create({
-    timeout: 30000,
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -14,16 +14,21 @@ const axiosClient = globalForAxios.axiosClient || axios.create({
 if (process.env.NODE_ENV !== 'production') globalForAxios.axiosClient = axiosClient;
 
 export const upload = async (filePath: string) => {
-    const formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath));
+    try {
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(filePath));
 
-    const response = await axiosClient.post('https://anonymfile.com/api/v1/upload', formData, {
-        headers: {
-            ...formData.getHeaders(),
-        },
-    });
+        const response = await axiosClient.post('https://anonymfile.com/api/v1/upload', formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
 
-    return response.data;
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        return false;
+    }
 };
 
 export const checkFileStatus = async (file: any) => {
