@@ -3,7 +3,6 @@ import { Subcommand } from '@sapphire/plugin-subcommands';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { prisma } from '@repo/db';
-import { checkFileStatus } from '@repo/uploader';
 import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
 import {dataUtils} from "../../lib/utils/dataUtils.ts";
 
@@ -141,8 +140,9 @@ export class DownloadCommand extends Subcommand {
         }
 
         try {
-            const status = await checkFileStatus(file);
+            //const status = await checkFileStatus(file);
 
+            const status = true; // Placeholder for actual status check
             this.container.logger.debug(`Checking status of file: ${file.metaId}`, status);
 
             file.lastChecked = new Date();
@@ -190,6 +190,7 @@ export class DownloadCommand extends Subcommand {
                 { name: '**Filetype**', value: file.type.toString(), inline: true },
                 { name: '**Last Checked**', value: dataUtils.convertISOToDate(file.lastChecked.toString()), inline: true },
                 { name: '\u200B', value: '\u200B' },
+                { name: '**Encryption Key**', value: file.encryptionKey, inline: true },
                 { name: '**Download Link**', value: `[Click Here](${file.url})`, inline: true },
             )
             .setTimestamp()

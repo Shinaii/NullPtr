@@ -1,11 +1,11 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { axiosClient } from "@repo/uploader";
-import { upload } from "@repo/uploader";
+import * as axios from 'axios';
 import * as fs from "node:fs";
 import { prisma } from "@repo/db";
 import { EmbedBuilder } from 'discord.js';
 import { EmbedUtils } from '../../lib/utils/embedUtils';
+import {MegaClient} from "@repo/uploader";
 
 @ApplyOptions<Command.Options>({
     name: 'upload',
@@ -53,65 +53,59 @@ export class UploadCommand extends Command {
         if (!fs.existsSync('./temp')) {
             fs.mkdirSync('./temp');
         }
-        const response = await axiosClient.get(file.url, { responseType: 'stream' });
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
-        writer.on('finish', async () => {
-            this.container.logger.debug('Starting file upload:', filePath);
-            const uploadResponse = await upload(filePath);
-            this.container.logger.debug('Upload response:', uploadResponse);
-            if (uploadResponse.status) {
-                const fileUrl = uploadResponse.data.file.url.short;
-                this.container.logger.debug('File uploaded successfully:', fileUrl);
-                fs.unlink(filePath, (err) => {
-                    if (err) {
-                        this.container.logger.error('Error deleting file:', err);
-                    }
-                });
 
-                await prisma.file.create({
-                    data: {
-                        category: interaction.options.getString('category') || '',
-                        name: interaction.options.getString('name') || '',
-                        url: uploadResponse.data.file.url.short,
-                        metaId: uploadResponse.data.file.metadata.id,
-                        size: parseInt(uploadResponse.data.file.metadata.size.bytes),
-                        type: fileType,
-                        status: uploadResponse.status,
-                        lastChecked: new Date().toISOString(),
-                        date: new Date().toISOString(),
-                    }
-                });
+        try {
+            const megaClient = MegaClient.getInstance();
+            const response = await axios.default.get(file.url, {
+                responseType: 'stream',
+            });
+            const writer = fs.createWriteStream(filePath);
+            response.data.pipe(writer);
 
-                const embed = new EmbedBuilder()
-                    .setColor(0x00FF00)
-                    .setTitle('Success')
-                    .setDescription(`File uploaded successfully: [${file.name}](${fileUrl})`);
-                EmbedUtils.setFooter(embed, interaction);
-                await interaction.editReply({ embeds: [embed] });
-            } else {
-                this.container.logger.error('Error uploading file:', uploadResponse);
-                const embed = new EmbedBuilder()
-                    .setColor(0xFF0000)
-                    .setTitle('Error')
-                    .setDescription('Error uploading file.');
-                EmbedUtils.setFooter(embed, interaction);
-                await interaction.editReply({ embeds: [embed] });
-                fs.unlink(filePath, (err) => {
-                    if (err) {
-                        this.container.logger.error('Error deleting file:', err);
-                    }
-                });
-            }
-        });
-        writer.on('error', (error) => {
-            this.container.logger.error('Error downloading file:', error);
+            await new Promise((resolve, reject) => {
+                // @ts-ignore
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            this.container.logger.debug('Starting file upload to MEGA:', filePath);
+            const megaData = await megaClient.uploadFile(file.name, filePath);
+            this.container.logger.debug('File uploaded successfully:', megaData.link);
+            // Save to DB
+            await prisma.file.create({
+                data: {
+                    category: interaction.options.getString('category') || '',
+                    name: interaction.options.getString('name') || '',
+                    url: megaData.link,
+                    encryptionKey: megaData.key,
+                    metaId: megaData.downloadId,
+                    size: fs.statSync(filePath).size,
+                    type: fileType,
+                    status: true,
+                    lastChecked: new Date().toISOString(),
+                    date: new Date().toISOString(),
+                }
+            });
+
+            fs.unlink(filePath, err => {
+                if (err) this.container.logger.error('Error deleting temp file:', err);
+            });
+
+            const embed = new EmbedBuilder()
+                .setColor(0x00FF00)
+                .setTitle('Success')
+                .setDescription(`File uploaded successfully: [${file.name}](${megaData.linkFull})`);
+            EmbedUtils.setFooter(embed, interaction);
+            await interaction.editReply({ embeds: [embed] });
+
+        } catch (error) {
+            this.container.logger.error('Error handling file upload:', error);
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('Error')
-                .setDescription('Error downloading file.');
+                .setDescription('There was an error uploading your file.');
             EmbedUtils.setFooter(embed, interaction);
-            return interaction.editReply({ embeds: [embed] });
-        });
+            await interaction.editReply({ embeds: [embed] });
+        }
     }
 }

@@ -2,6 +2,7 @@ import { prisma } from "@repo/db";
 import {LogLevel, SapphireClient, container, ApplicationCommandRegistries, RegisterBehavior } from '@sapphire/framework';
 import { GatewayIntentBits, ActivityType } from 'discord.js';
 import '@sapphire/plugin-logger/register';
+import {MegaClient} from "@repo/uploader";
 
 const client = new SapphireClient({
     intents: [GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
@@ -14,6 +15,15 @@ const client = new SapphireClient({
 client.once('ready', async () => {
     client.user?.setStatus('online');
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
+
+    if(MegaClient.isInstance()) {
+        container.logger.debug("MegaClient already exists, skipping creation.");
+    } else {
+        container.logger.debug("Creating MegaClient instance.");
+        MegaClient.init(process.env.MEGA_EMAIL, process.env.MEGA_PASSWORD);
+    }
+
+
     await prisma.$connect();
 
     const activity = async () => {

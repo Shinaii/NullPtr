@@ -21,16 +21,17 @@ model Admin {
 }
 
 model File {
-  id          Int      @id @default(autoincrement())
-  category    String
-  name        String
-  url         String
-  metaId      String
-  size        Int
-  type        String
-  status      Boolean
-  lastChecked DateTime
-  date        DateTime
+  id            Int      @id @default(autoincrement())
+  category      String
+  name          String
+  url           String
+  encryptionKey String
+  metaId        String
+  size          Int
+  type          String
+  status        Boolean
+  lastChecked   DateTime
+  date          DateTime
 }
 
 model DiscordGuild {
