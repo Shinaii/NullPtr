@@ -59,8 +59,8 @@ export class MegaClient {
             const file = await uploadStream.complete;
 
             // @ts-ignore
-            const linkFull = await file.link(true) + '#' + file.key.toString('base64');
-
+            const base64Key = file.key.toString('base64');
+            const linkFull = await file.link(true) + '#' + toBase64Url(base64Key);
             function extractMegaIdAndKey(link: string) {
                 const match = link.match(/\/file\/([^#]+)#(.+)/);
                 if (!match) throw new Error('Invalid MEGA link format');
@@ -72,7 +72,7 @@ export class MegaClient {
             }
 
             let { id, key } = extractMegaIdAndKey(linkFull);
-            id = toBase64Url(id);
+            key = toBase64Url(key);
             
 
             return {
