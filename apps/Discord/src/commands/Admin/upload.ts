@@ -96,7 +96,7 @@ export class UploadCommand extends Command {
                 .setTitle('Success')
                 .setDescription(`File uploaded successfully: [${file.name}](${megaData.linkFull})`);
             EmbedUtils.setFooter(embed, interaction);
-            await interaction.editReply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
 
         } catch (error) {
             this.container.logger.error('Error handling file upload:', error);
@@ -105,7 +105,7 @@ export class UploadCommand extends Command {
                 .setTitle('Error')
                 .setDescription('There was an error uploading your file.');
             EmbedUtils.setFooter(embed, interaction);
-            await interaction.editReply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         }
     }
 }
