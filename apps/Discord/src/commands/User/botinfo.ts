@@ -2,7 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
-import * as pidusage from 'pidusage';
+import pidusage from 'pidusage';
 
 @ApplyOptions<Command.Options>({
 	name: 'botinfo',
@@ -62,7 +62,8 @@ export class BotinfoCommand extends Command {
 				{ name: 'Servers', value: `${interaction.client.guilds.cache.size}`, inline: true },
 				{ name: 'Contributing', value: '[GitHub](https://github.com/Shinaii/NullPtr)', inline: true },
 				{ name: 'Ping', value: `${Math.round(interaction.client.ws.ping)}ms`, inline: true },
-				{ name: 'Special Thanks', value: 'None', inline: true }
+				{ name: 'Special Thanks', value: 'None', inline: true },
+				{ name: 'Version', value: String(global.version), inline: true }
 			)
 
 			.setTimestamp();

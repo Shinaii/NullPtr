@@ -10,7 +10,8 @@ export class MegaClient {
 
     private constructor(
         private readonly email: string | undefined,
-        private readonly password: string | undefined
+        private readonly password: string | undefined,
+        private readonly folder: string | undefined
     ) {
         //if email and password undefined throw error
         if (!email || !password) {
@@ -26,9 +27,9 @@ export class MegaClient {
         });
     }
 
-    static init(email: string | undefined, password: string | undefined): MegaClient {
+    static init(email: string | undefined, password: string | undefined, folder: string | undefined): MegaClient {
         if (!instance) {
-            instance = new MegaClient(email, password);
+            instance = new MegaClient(email, password, folder);
         }
         return instance;
     }
