@@ -2,6 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import {EmbedUtils} from "../../lib/utils/embedUtils.ts";
+import * as pidusage from 'pidusage';
 
 @ApplyOptions<Command.Options>({
 	name: 'botinfo',
@@ -17,7 +18,8 @@ export class BotinfoCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-		const membercount = interaction.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
+		const membercount = interaction.client.guilds.cache.reduce((acc, guild) => acc
+			+ guild.memberCount, 0);
 
 		// Uptime calculation
 		const uptime = process.uptime();
@@ -34,17 +36,23 @@ export class BotinfoCommand extends Command {
 			.map(unit => `${unit.value}${unit.label}`)
 			.join(' ');
 
+
+		async function getBotInfoCPUUsage(): Promise<string> {
+			const { cpu } = await pidusage(process.pid);
+			return `${cpu.toFixed(2)}%`;
+		}
+
 		const embed = new EmbedBuilder()
 			.setColor(0xA020F0)
 			.setTitle('Botinfo')
 			.setThumbnail(interaction.client.user.avatarURL())
-			.setDescription(`NullPtr is a cross-platform tool for downloading and managing files from anonymous sources. It is designed to be fast, efficient, and easy to use.`)
-			.setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() ?? ''})
+			.setDescription(`NullPtr is a cross-platform tool for downloading and managing files from 
+							anonymous sources. It is designed to be fast, efficient, and easy to use.`)
+			.setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() ?? undefined})
 			.setURL('https://github.com/Shinaii/NullPtr')
 			.setFields(
 				{ name: 'RAM Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`, inline: true },
-				 // TODO: Fix CPU Usage calculation
-				{ name: 'CPU Usage', value: `${(process.cpuUsage().user / 1024 / 1024).toFixed(2)}%`, inline: true },
+				{ name: 'CPU Usage', value: await getBotInfoCPUUsage(), inline: true },
 				{
 					name: 'Uptime',
 					value: uptimeString || 'N/A', // Display 'N/A' if uptime is 0
