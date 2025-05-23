@@ -69,7 +69,7 @@ export class UploadCommand extends Command {
             });
 
             this.container.logger.debug('Starting file upload to MEGA:', filePath);
-            const megaData = await megaClient.uploadFile(file.name, filePath);
+            const megaData = await megaClient.uploadFile(file.name, filePath, interaction.options.getString('category'));
             this.container.logger.debug('File uploaded successfully:', megaData.link);
             // Save to DB
             await prisma.file.create({
