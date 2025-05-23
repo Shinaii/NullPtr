@@ -1,13 +1,16 @@
 import { prisma } from "@repo/db";
-import {LogLevel, SapphireClient, container, ApplicationCommandRegistries, RegisterBehavior } from '@sapphire/framework';
+import {LogLevel, SapphireClient, container } from '@sapphire/framework';
 import { GatewayIntentBits, ActivityType } from 'discord.js';
 import '@sapphire/plugin-logger/register';
-import {MegaClient} from "@repo/uploader";
 
 global.version = require('../package.json').version;
 
 const client = new SapphireClient({
-    intents: [GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+    intents: [
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages
+    ],
     loadMessageCommandListeners: true,
     logger: {
         level: process.env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
@@ -19,31 +22,18 @@ if(process.env.NODE_ENV === 'development') {
 }
 
 client.once('ready', async () => {
-    client.user?.setStatus('online');
-    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
-
-    container.logger.debug(`Bot invite link: https://discord.com/oauth2/authorize?client_id=${client.user?.id}&scope=bot%20applications.commands&permissions=8`);
-
-    if(MegaClient.isInstance()) {
-        container.logger.debug("MegaClient already exists, skipping creation.");
-    } else {
-        container.logger.debug("Creating MegaClient instance.");
-        MegaClient.init(process.env.MEGA_EMAIL, process.env.MEGA_PASSWORD, process.env.MEGA_FOLDER);
-    }
-
-
-
-
     await prisma.$connect();
+    //Check if All Discord Guilds are in the database
+    await syncGuildsWithDatabase();
 
     const activity = async () => {
-      const memberCount = client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
-      const filesCount = await prisma.file.count();
+        const memberCount = client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
+        const filesCount = await prisma.file.count();
 
-      client.user?.setActivity({
-        name: ` ${filesCount} files and ${memberCount} members`,
-        type: ActivityType.Watching,
-      });
+        client.user?.setActivity({
+            name: ` ${filesCount} files and ${memberCount} members`,
+            type: ActivityType.Watching,
+        });
 
         container.logger.debug(`Bot is watching over ${filesCount} files and ${memberCount} members.`);
     }
@@ -51,6 +41,46 @@ client.once('ready', async () => {
     setInterval(activity, 60000);
 });
 
-client.login(process.env.BOT_TOKEN).then(r =>
+client.login(process.env.BOT_TOKEN).then(() =>
     container.logger.info("Bot is logged in!")
 );
+
+async function syncGuildsWithDatabase() {
+    const guilds = await prisma.discordGuild.findMany();
+    container.logger.debug(`Found ${guilds.length} Discord Guilds in the database.`);
+    const guildIds = guilds.map(guild => guild.GuildId);
+    const allGuilds = client.guilds.cache.map(guild => guild.id);
+    container.logger.debug(`Found ${allGuilds.length} Discord Guilds in the cache.`);
+
+    // Add missing guilds
+    const missingGuilds = allGuilds.filter(guild => !guildIds.includes(guild));
+    container.logger.debug(`Found ${missingGuilds.length} missing Discord Guilds in the database.`);
+    if (missingGuilds.length > 0) {
+        container.logger.debug(`Missing Guilds: ${missingGuilds}`);
+        for (const guildId of missingGuilds) {
+            const guild = client.guilds.cache.get(guildId);
+            if (guild) {
+                await prisma.discordGuild.create({
+                    data: {
+                        GuildId: guild.id,
+                        name: guild.name,
+                        members: guild.memberCount,
+                        createdAt: new Date().toISOString()
+                    }
+                });
+                container.logger.debug(`Added missing Guild ${guild.name} (${guild.id}) to the database.`);
+            }
+        }
+    } else {
+        container.logger.debug("No missing Guilds found.");
+    }
+    const staleGuilds = guildIds.filter(guildId => !allGuilds.includes(guildId));
+    if (staleGuilds.length > 0) {
+        container.logger.debug(`Removing ${staleGuilds.length} stale Guilds from the database: ${staleGuilds}`);
+        await prisma.discordGuild.deleteMany({
+            where: {
+                GuildId: { in: staleGuilds }
+            }
+        });
+    }
+}
