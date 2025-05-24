@@ -10,7 +10,7 @@ import {MegaClient} from "@repo/uploader";
 @ApplyOptions<Command.Options>({
     name: 'upload',
     description: 'Upload a file',
-    preconditions: [['AdminOnly', "OwnerOnly"]]
+    preconditions: [['AdminOnly']]
 })
 export class UploadCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {
